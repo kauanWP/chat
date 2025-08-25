@@ -1,0 +1,178 @@
+{
+  "createdAt": "2025-08-25T19:43:44.862Z",
+  "meta": {
+    "totalFiles": 8,
+    "chunkSize": 900,
+    "overlap": 150
+  },
+  "docs": [
+    {
+      "id": 1,
+      "source": "MANUAL ABERTURA DE CAIXA.pdf",
+      "start": 0,
+      "end": 900,
+      "length": 900,
+      "text": "MANUAL ABERTURA DE CAIXA Neste manual teremos as funções de lançamento de valor de abertura de caixa e também de edição de valor da abertura do caixa. Para iniciarmos o dia e começar a lançar venda no sistema primeiro vamos fazer a contagem do que temos de valor em dinheiro no meu caixa e então ir até a função Frente de caixa>abertura de caixa no sistema. Acessando essa função o sistema irá abrir uma tela onde temos a opção de colocar o valor de abertura. Na primeira abertura do dia, vamos somente colocar o valor e dar um gravar logo em seguida. Assim estará aberto o caixa e pode ser começado a lançar vendas no sistema. Se caso eu errar o valor de abertura ou ele mudar por algum motivo podemos editar esse valor acessando novamente a função frente de caixa>abertura de caixa, mas nesse caso vamos colocar a senha do sistema e depois disso o sistema vai me liberar para mexer no valor do dia."
+    },
+    {
+      "id": 2,
+      "source": "MANUAL ABERTURA DE CAIXA.pdf",
+      "start": 750,
+      "end": 1009,
+      "length": 259,
+      "text": "frente de caixa>abertura de caixa, mas nesse caso vamos colocar a senha do sistema e depois disso o sistema vai me liberar para mexer no valor do dia. Depois estará registrado meu novo valor de abertura do caixa. Gabriel Viana de Oliveira Suporte HPR Sistemas"
+    },
+    {
+      "id": 3,
+      "source": "MANUAL CONFERÊNCIA DE CAIXA PELO RESUMO DIÁRIO.pdf",
+      "start": 0,
+      "end": 873,
+      "length": 873,
+      "text": "MANUAL CONFERÊNCIA CEGA DO CAIXA Neste manual estará constando como acessar e realizar os lançamentos para a conferência do caixa pelos valores contados pelo operador do caixa para serem mais tarde comparados com o resumo diário do sistema. Para acessar essa função vamos ir até a aba de frente de caixa>conferência do caixa. Nesta tela vamos então selecionar a forma de pagamento que estamos conferindo e registrar o valor que contamos, em seguida vamos ir fazendo isso com todas as formas de pagamento que vamos conferir, após isso vamos confirmar o lançamento que vai me dar a opção de imprimir um comprovante de lançamento. Este comprovante que sair da conferência de caixa vamos comparar ao relatório resumo diário para saber se o valor que temos em mãos foi o mesmo que foi lançado como vendas e recebimentos no sistema. Gabriel Viana de Oliveira Suporte HPR Sistemas"
+    },
+    {
+      "id": 4,
+      "source": "MANUAL CONFIGURAÇÃO DE COMISSÕES .pdf",
+      "start": 0,
+      "end": 900,
+      "length": 900,
+      "text": "MANUAL CONFIGURAÇÃO DE COMISSÕES Neste manual estará constando as funções de configurações de comissão podendo ser diferenciar as porcentagens de comissão de vendedor para vendedor, de produtos e serviços e também de produtos ou grupos de produtos em específico. Para iniciarmos os cadastros de comissões é importante ter os vendedores já cadastrados para vincularmos os dados ao código de cada um dos vendedores. Então na aba Cadastros>Vendedores. Após abrir a tela de cadastro de vendedores e selecionado o cadastro de um vendedor na lupa ao lado do campo código poderá ser adicionado no cadastro dele um percentual de comissão para produtos e para serviços. Com esses campos completos no cadastro do vendedor basta gravar o cadastro do vendedor novamente e então será puxado para o vendedor um percentual fixo de comissão para cada venda que for informado o código dele. Também pode ser configurad"
+    },
+    {
+      "id": 5,
+      "source": "MANUAL CONFIGURAÇÃO DE COMISSÕES .pdf",
+      "start": 750,
+      "end": 1650,
+      "length": 900,
+      "text": "vamente e então será puxado para o vendedor um percentual fixo de comissão para cada venda que for informado o código dele. Também pode ser configurado comissionamento diferenciado para produtos ou grupos específicos, por exemplo para um produto da loja que tem um valor diferente ou que tenha a venda mais difícil pode ser informado um percentual de comissão maior ou menor que os demais produtos da loja. Para isso basta abrirmos novamente o cadastro de um vendedor na lupa e então ir na aba “Configuração de Comissões”. Nessa tela vamos selecionar o vendedor e após selecionar nos campos abaixo o produto ou o grupo de produtos que vamos mudar o percentual de comissão que será informado no campo logo abaixo, lembrando que é sempre importante clicar no botão gravar para que a informação seja registrada no sistema. Nesse exemplo no caso estaria configurado 5% de comissão para o vendedor 1 quand"
+    },
+    {
+      "id": 6,
+      "source": "MANUAL CONFIGURAÇÃO DE COMISSÕES .pdf",
+      "start": 1500,
+      "end": 1735,
+      "length": 235,
+      "text": "car no botão gravar para que a informação seja registrada no sistema. Nesse exemplo no caso estaria configurado 5% de comissão para o vendedor 1 quando o mesmo vendesse o produto código 1. Gabriel Viana de Oliveira Suporte HPR Sistemas"
+    },
+    {
+      "id": 7,
+      "source": "MANUAL DE RETIRADAS DE VALOR DO CAIXA.pdf",
+      "start": 0,
+      "end": 864,
+      "length": 864,
+      "text": "MANUAL DE RETIRADAS DE VALOR DO CAIXA Neste manual então estará constando a parte de retiradas do caixa, retiradas de valores que podem ser desde retiradas para pagamentos de contas, fornecedores até mesmo a retirada padrão do caixa que se faz todo dia depois de finalizar as vendas. Para isso vamos acessar a aba Financeiro>Movimento de caixa>Lançamento de Entrada e Saída. Na tela que será aberta completaremos os campos Conta com o caixa que estamos fazendo aquela operação, histórico com o tipo de movimentação que estamos realizando (se caso o tipo de movimentação não esteja cadastrada podemos ir no símbolo de adição ao lado para cadastrar um novo histórico), e o valor. Depois disso podemos então confirmar o lançamento. Estes lançamentos podem ser acompanhados no relatório resumo diário ou no relatório DRE. Gabriel Viana de Oliveira Suporte HPR Sistemas"
+    },
+    {
+      "id": 8,
+      "source": "MANUAL LANÇAMENTO DE CONTAS A PAGAR.pdf",
+      "start": 0,
+      "end": 900,
+      "length": 900,
+      "text": "MANUAL LANÇAMENTO DE CONTAS A PAGAR Neste manual estará constando o processo de lançamento manual de contas a pagar para casos onde uma dívida da empresa precisa ser lançada sem que se tenha um boleto para ser lançado junto com o lançamento de entradas por XML ou mesmo quando é esquecido de lançar os boletos junto com a nota, para isso vamos acessar o menu Financeiro>Conta a Pagar>Lançamento de Contas. Na tela que será aberta em seguida vamos completar os campos: Fornecedor: com o cadastro do fornecedor que a dívida se refere Histórico: completar com o código de um histórico que se refere ao pagamento de fornecedor ou cadastrar um histórico no símbolo de adição ao lado para cada um dos fornecedores. Doc.Cobrança: podemos adicionar o número da nota ou pedido em que aquela dívida se originou. Abaixo disso vamos então completar as parcelas, podemos lançar uma por uma, completando somente ve"
+    },
+    {
+      "id": 9,
+      "source": "MANUAL LANÇAMENTO DE CONTAS A PAGAR.pdf",
+      "start": 750,
+      "end": 1223,
+      "length": 473,
+      "text": "da nota ou pedido em que aquela dívida se originou. Abaixo disso vamos então completar as parcelas, podemos lançar uma por uma, completando somente vencimento, valor Doc. Cobrança(número do boleto referente aquela parcela caso possuir) e vamos gravar as parcelas abaixo. No botão ao lado “Parcelamento” podemos lançar também em massa essas parcelas selecionando valor das parcelas e quantidade delas. Depois de lançadas todas as parcelas vamos então confirmar o lançamento."
+    },
+    {
+      "id": 10,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 0,
+      "end": 900,
+      "length": 900,
+      "text": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA Neste manual estará constando as funções de lançamento de entradas de produtos pela tela de lançamento automática onde o usuário poderá através da leitura do XML das notas de compra importar os produtos para o sistema. Para iniciarmos o processo de lançamento de entrada manual vamos primeiro ter que ter o XML da nota de compra da mercadoria que pode ser pego com o fornecedor se o mesmo tiver lhe enviado ou pela chave de acesso da nota fiscal eletrônica em alguns sites como o site de consultar NFE do Sefaz ou o FSIST. Após ter o XML da nota baixado podemos então ir até a aba estoque do sistema e seguir o caminho > lançamento de entradas>automática. Com o XML da nota salvo no seu computador iremos até a aba de Buscar XML, esta função irá abrir o navegador do computador onde será preciso localizar o XML e dar dois cliques sobre ele. Ao ler o XML ness"
+    },
+    {
+      "id": 11,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 750,
+      "end": 1650,
+      "length": 900,
+      "text": "a aba de Buscar XML, esta função irá abrir o navegador do computador onde será preciso localizar o XML e dar dois cliques sobre ele. Ao ler o XML nessa função, o sistema selecionará o fornecedor de forma automática caso o mesmo esteja cadastrado se não podemos puxar a tela de cadastro do fornecedor no símbolo de adição ao lado do código. Na imagem a acima estão os campos obrigatórios para o cadastro do fornecedor, no caso seriam: ● Razão social ● Fantasia ● Endereço ● Número ● Bairro ● Cidade ● UF ● CEP ● CNPJ ● IE ● Cod. IBGE (Este sendo completo clicando na lupa e buscando o nome da cidade do fornecedor) Após completar esses campos pode ser clicado então em gravar que o cadastro estará concluído e será puxado de forma automática nas demais notas desse fornecedor que forem ser importadas. Voltando à tela de entradas após selecionar o fornecedor, vamos completar o campo de natureza de op"
+    },
+    {
+      "id": 12,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 1500,
+      "end": 2400,
+      "length": 900,
+      "text": "s notas desse fornecedor que forem ser importadas. Voltando à tela de entradas após selecionar o fornecedor, vamos completar o campo de natureza de operação. Podendo ser essa natureza “COMPRA A VISTA” ou ‘COMPRA A PRAZO” dependendo da situação da situação em que a mercadoria foi adquirida, as duas situações vão movimentar o financeiro do sistema mudando somente que a Compra a Vista irá descontar na data em que a mercadoria está sendo importada para o sistema e a Compra a Prazo vai descontar o valor depois de baixado a parcela/duplicata que foi lançada no sistema. Abaixo das naturezas temos algumas opções que podem ser selecionadas antes de importar a mercadoria para facilitar a importação e registro dos produtos: ● Grupo padrão: irá colocar todos os itens já em um único grupo de produtos no sistema ● Alíquota Padrão Ent. : Usada quando se sabe que todos os itens têm o mesmo padrão tribut"
+    },
+    {
+      "id": 13,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 2250,
+      "end": 3150,
+      "length": 900,
+      "text": " todos os itens já em um único grupo de produtos no sistema ● Alíquota Padrão Ent. : Usada quando se sabe que todos os itens têm o mesmo padrão tributário para entrada, podendo ser selecionado o código da alíquota de entrada para já registrar nos produtos. ● Alíquota Padrão Sai. : Usada quando se sabe que todos os itens têm o mesmo padrão tributário para Saída podendo ser selecionado o código da alíquota de entrada para já registrar nos produtos. ● Margem padrão: Pode ser usada para definir já na leitura dos produtos uma margem a ser aplicada sobre o preço de custo. Ao lado dessas opções também temos alguns diferenciais para aplicar a nota de entrada que seriam então modificadores para questão de vínculos dos códigos dos produtos e seus valores de venda: ● Imp. Cod. Inter. do Fornecedor: Para casos onde se quer colocar o mesmo código do fornecedor como código do produto no sistema ou os "
+    },
+    {
+      "id": 14,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 3000,
+      "end": 3900,
+      "length": 900,
+      "text": "ores de venda: ● Imp. Cod. Inter. do Fornecedor: Para casos onde se quer colocar o mesmo código do fornecedor como código do produto no sistema ou os produtos já cadastrados tem o mesmo código que o produto que veio na nota do fornecedor. ● Preço de venda Fixo: Não vai alterar o preço de venda dos produtos por mais que o valor do custo tenha se alterado. ● Considerar Maior Preço de Venda: Se o preço de custo for maior vai alterar o preço de venda do produto conforme a margem informada. ● Usar EAN 13 do XML como Código: Importa o código de barras do produto que veio destacado na nota como código interno do sistema. ● Não altera Preço Produtos: Não vai fazer alterações do preço de venda dos cadastros já existentes. ● Não filtrar pela Descrição do Produto: O sistema não vai vincular o código automaticamente quando o produto tiver a mesma descrição do produto que veio na nota de compra do fo"
+    },
+    {
+      "id": 15,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 3750,
+      "end": 4650,
+      "length": 900,
+      "text": "o do Produto: O sistema não vai vincular o código automaticamente quando o produto tiver a mesma descrição do produto que veio na nota de compra do fornecedor. Após informado os campos obrigatórios (fornecedor e natureza) e completo os campos opcionais conforme necessário podemos então clicar em importar, nisso o sistema irá ler os produtos que vieram no XML que estamos lendo e fará a ligação dos produtos aos códigos internos que forem o mesmo que há no sistema ou que a descrição bater com um cadastro existente. Os produtos que já o sistema ligar a um cadastro existente ficarão marcados em verde e estarão prontos para importar no sistema, já os que não estiverem vinculados a um cadastro vamos fazer o vínculo a um cadastro em “alterar código” ou vamos criar um cadastro para ele na função “cadastrar produto”, para isso vamos clicar nos produtos que estão em branco com o botão direito do mo"
+    },
+    {
+      "id": 16,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 4500,
+      "end": 5400,
+      "length": 900,
+      "text": "” ou vamos criar um cadastro para ele na função “cadastrar produto”, para isso vamos clicar nos produtos que estão em branco com o botão direito do mouse e ir na função que precisamos. Nesse caso por exemplo estou vinculando um produto a um cadastro que o sistema não conseguiu encontrar no sistema (descrição um pouco diferente ou código do fornecedor diferente podem ser a causa) e vou dizer a qual cadastro àquele produto se refere dando dois cliques sobre o cadastro que vai ser usado. O produto também pode ser um que não tenho cadastrado no sistema então vamos fazer o processo de “cadastrar produto” que também seria clicando com o botão direito no produto que ficou em branco. Clicando nessa função certas informações já vão ser completas que seriam a descrição, NCM, custo, fornecedor e alíquotas; Para prosseguir com o cadastro vamos ter que completar somente os campos Grupo e preço de ven"
+    },
+    {
+      "id": 17,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS AUTOMÁTICA.pdf",
+      "start": 5250,
+      "end": 6083,
+      "length": 833,
+      "text": " seriam a descrição, NCM, custo, fornecedor e alíquotas; Para prosseguir com o cadastro vamos ter que completar somente os campos Grupo e preço de venda e também pode ser ajustada a descrição do item da preferência do usuário do sistema. Com o botão direito temos algumas outras funções também que seriam a respeito das quantidades dos itens que vão ser importados e os seus valores. Para alterar quantidades vamos ir em Alterar Dados do Item, também podemos alterar a unidade de venda, preço de venda, margem e alíquotas. Ainda temos uma opção para mudar somente o valor de venda dos itens, acessando a opção ajustar preço de venda. Depois de terminado de vincular os itens, ajustar os valores e cadastrar produtos novos vamos então confirmar o lançamento e a entrada estará concluída. Gabriel Viana de Oliveira Suporte HPR Sistemas"
+    },
+    {
+      "id": 18,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS MANUAL.pdf",
+      "start": 0,
+      "end": 900,
+      "length": 900,
+      "text": "MANUAL LANÇAMENTO DE ENTRADAS MANUAL Neste manual estará constando as funções de lançamento de entradas de produtos pela tela de lançamento manual onde o usuário completa todas as informações da compra. Para iniciarmos o processo de lançamento de entrada manual vamos ir até a aba Estoque do sistema e vamos seguir o caminho lançamento de entradas>manual. Na tela de lançamento de entradas manual iniciamos completando as informações sobre a nota como fornecedor, natureza(compra a vista, compra a prazo ou transferência entre matriz/filial), o número da nota, sua chave de acesso, data de emissão e data de recebimento da nota fiscal. Nesta aba também será informado os valores da compra da mercadoria ou valor da transferência nos campos total dos produtos (obrigatório), total de frete, outras despesas acessórias e desconto (caso aplicável). Após lançados esses dados iniciais pode ser começado o"
+    },
+    {
+      "id": 19,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS MANUAL.pdf",
+      "start": 750,
+      "end": 1650,
+      "length": 900,
+      "text": "produtos (obrigatório), total de frete, outras despesas acessórias e desconto (caso aplicável). Após lançados esses dados iniciais pode ser começado o lançamento dos itens conforme quantidade e custo unitário da nota de compra. Para itens que já existem no sistema deve ser selecionado o cadastro do mesmo pela pesquisa ou informado o código interno para identificar o cadastro, após isso deve ser informado o campo quantidade e valor total (conforme totais da nota de compra) com isso informado e sendo confirmado sempre os campos com a tecla enter o sistema irá calcular custo final e poderá ser aplicado uma margem sobre o valor de compra para calcular o preço de venda. Depois pode ser confirmado até tecla gravar item e começar a lançar o próximo item da nota. Se caso o item não possua cadastro ainda no sistema pode ser clicado no símbolo de adição ao lado do campo código para puxar de forma "
+    },
+    {
+      "id": 20,
+      "source": "MANUAL LANÇAMENTO DE ENTRADAS MANUAL.pdf",
+      "start": 1500,
+      "end": 2395,
+      "length": 895,
+      "text": "o item da nota. Se caso o item não possua cadastro ainda no sistema pode ser clicado no símbolo de adição ao lado do campo código para puxar de forma rápida a tela de cadastro de produto, onde devem ser completos os campos obrigatórios: descrição, grupo, ncm e alíquotas de ICMS, IPI, PIS e COFINS. Lembrando que o estoque e valores de custo e venda não devem ser preenchidos nesta tela pois o sistema irá os completar quando o produto for usado na entrada da nota. Com todos os produtos que vieram na nota de compra lançados podemos então ir até a tecla gravar para confirmar a entrada e registrar todas as informações. Confirmada a entrada então poderá ser dado um não nos pedidos a seguir e a entrada estará salva com sucesso, alimentando o estoque e salvando as informações para poderem ser usadas em relatórios futuros como o livro inventário. Gabriel Viana de Oliveira Suporte HPR Sistemas"
+    },
+    {
+      "id": 21,
+      "source": "MANUAL LANÇAMENTO DE PAGAMENTOS DE FORNECEDORES.pdf",
+      "start": 0,
+      "end": 581,
+      "length": 581,
+      "text": "MANUAL LANÇAMENTO DE PAGAMENTOS DE FORNECEDORES Neste manual estará constando o caminho e forma de lançamento de baixas dos boletos de fornecedores lançados na aba de contas a pagar, para iniciar esse tipo de lançamento vamos ir até a aba Financeiro>Contas a Pagar>Lançamento de Pagamentos ou no ícone da tela inicial ao lado do a receber. Ou Nessa aba vamos então selecionar o fornecedor e as parcelas que desejamos baixar. Após, vamos selecionar a conta que gostaríamos que esse valor fosse descontado e vamos Confirmar o Pagamento. Gabriel Viana de Oliveira Suporte HPR Sistemas"
+    }
+  ]
+}
