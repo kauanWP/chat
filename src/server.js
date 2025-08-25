@@ -17,16 +17,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// Simple API key check (set API_KEY in Render/env or .env)
+// API key opcional
 function checkAuth(req, res, next) {
   const apiKey = process.env.API_KEY || '';
-  if (!apiKey) return next(); // se não tiver configurado, libera (dev)
+  if (!apiKey) return next(); // se não tiver, libera no dev
   const got = req.get('x-api-key') || req.query.key || req.body.key;
   if (got && got === apiKey) return next();
   return res.status(401).json({ error: 'Unauthorized' });
 }
 
+// rota saúde
 app.get('/health', (req, res) => res.json({ ok: true }));
+
+// rota raiz só pra dizer oi
+app.get('/', (req, res) => {
+  res.send('🍻 Boteco aberto e servindo respostas! Use POST /api/query');
+});
 
 // POST /api/query { question: "..." }
 app.post('/api/query', checkAuth, async (req, res) => {
@@ -35,29 +41,33 @@ app.post('/api/query', checkAuth, async (req, res) => {
     if (!q) return res.status(400).json({ error: 'Missing question' });
 
     // busca inicial
-    const rawHits = search(q, 8); // pool maior para rerank
+    const rawHits = search(q, 8);
     const topk = Number(process.env.RERANK_TOPK) || 3;
 
-    // rerank pode ser async e usa LLM ou heurística
+    // rerank
     const hits = await rerank(q, rawHits, topk);
     if (!hits || hits.length === 0) {
       return res.json({ answer: 'Não encontrei trechos relevantes nos manuais.', sources: [] });
     }
 
     const { answer, sources } = await buildAnswer(q, hits);
-    return res.json({ answer, sources: Array.isArray(sources) ? Array.from(new Set(sources)) : [] });
+    return res.json({
+      answer,
+      sources: Array.isArray(sources) ? Array.from(new Set(sources)) : []
+    });
   } catch (err) {
     console.error('API /api/query error:', err);
     return res.status(500).json({ error: 'Erro interno', details: String(err.message || err) });
   }
 });
 
-// serve SPA fallback (opcional)
+// fallback SPA (opcional, se tiver front)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-const PORT = process.env.PORT || 6000;
+// Render dá a porta no env
+const PORT = process.env.PORT || 3000;
 
 (async () => {
   try {
