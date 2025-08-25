@@ -1,52 +1,165 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <title>ERP-IA-BOT (demo)</title>
+  <meta charset="UTF-8">
+  <title>🍺 Boteco IA</title>
   <style>
-    body{font-family:Inter,system-ui,Segoe UI,Arial;padding:20px;max-width:800px;margin:auto}
-    textarea{width:100%;height:80px}
-    button{padding:8px 12px}
-    pre{white-space:pre-wrap;background:#f6f6f6;padding:12px;border-radius:6px}
+    :root {
+      --bg: #f8f9fa;
+      --primary: #0077ff;
+      --secondary: #6c757d;
+      --bot: #e9ecef;
+      --user: #d1e7ff;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      height: 90vh;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 1rem;
+      background: var(--primary);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .msg {
+      margin: .5rem 0;
+      padding: .7rem 1rem;
+      border-radius: 12px;
+      max-width: 75%;
+      line-height: 1.4;
+    }
+
+    .msg.user {
+      background: var(--user);
+      align-self: flex-end;
+    }
+
+    .msg.bot {
+      background: var(--bot);
+      align-self: flex-start;
+    }
+
+    .footer {
+      display: flex;
+      border-top: 1px solid #ddd;
+      padding: .5rem;
+      background: #fafafa;
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      border: none;
+      padding: .5rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    button {
+      margin-left: .5rem;
+      padding: 0 1.2rem;
+      font-size: 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #0056cc;
+    }
+
+    .sources {
+      font-size: 0.8rem;
+      color: var(--secondary);
+      margin-top: .3rem;
+    }
   </style>
 </head>
 <body>
-  <h2>ERP-IA-BOT — Demo</h2>
-  <label>Pergunta:</label>
-  <textarea id="q"></textarea>
-  <div style="margin:8px 0">
-    <button id="send">Perguntar</button>
-    <span style="margin-left:12px;color:#666">Se precisar, configure X-API-KEY no campo abaixo.</span>
+  <div class="container">
+    <div class="header">🍺 Boteco IA</div>
+    <div id="messages" class="messages"></div>
+    <div class="footer">
+      <textarea id="pergunta" placeholder="Digite sua pergunta..."></textarea>
+      <button onclick="perguntar()">Enviar</button>
+    </div>
   </div>
 
-  <label>API Key (opcional):</label>
-  <input id="key" style="width:100%;margin-bottom:8px" placeholder="se configured on server" />
-
-  <h3>Resposta</h3>
-  <pre id="out">—</pre>
-
   <script>
-    document.getElementById('send').onclick = async () => {
-      const q = document.getElementById('q').value.trim();
-      const key = document.getElementById('key').value.trim();
-      if (!q) return alert('escreve uma pergunta');
+    const messages = document.getElementById('messages');
+    const textarea = document.getElementById('pergunta');
 
-      const headers = { 'Content-Type': 'application/json' };
-      if (key) headers['x-api-key'] = key;
-
-      document.getElementById('out').textContent = 'A processar...';
-      try {
-        const r = await fetch('/api/query', { method: 'POST', headers, body: JSON.stringify({ question: q }) });
-        const json = await r.json();
-        if (!r.ok) {
-          document.getElementById('out').textContent = 'Erro: ' + (json.error || JSON.stringify(json));
-        } else {
-          document.getElementById('out').textContent = json.answer + '\n\nFontes: ' + (json.sources || []).join(' | ');
-        }
-      } catch (err) {
-        document.getElementById('out').textContent = 'Falha ao chamar API: ' + err;
+    function addMessage(text, type, sources=[]) {
+      const msg = document.createElement('div');
+      msg.className = `msg ${type}`;
+      msg.textContent = text;
+      if (sources.length && type === "bot") {
+        const refs = document.createElement('div');
+        refs.className = "sources";
+        refs.textContent = "Fontes: " + sources.join(", ");
+        msg.appendChild(refs);
       }
-    };
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function perguntar() {
+      const pergunta = textarea.value.trim();
+      if (!pergunta) return;
+      addMessage(pergunta, "user");
+      textarea.value = "";
+
+      try {
+        const res = await fetch('/api/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: pergunta })
+        });
+        const data = await res.json();
+        addMessage(data.answer || "🤷 Não entendi.", "bot", data.sources || []);
+      } catch (err) {
+        addMessage("⚠️ Erro ao consultar API: " + err.message, "bot");
+      }
+    }
+
+    textarea.addEventListener("keypress", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        perguntar();
+      }
+    });
   </script>
 </body>
 </html>
