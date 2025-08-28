@@ -1,135 +1,90 @@
-// src/answer.js
-import { generateText } from './groq-client.js';
-import { buildPrompt } from './prompt-templates.js';
+import { generateText } from 'ai';
+import { buildPrompt } from './prompt.js';
 
 /**
- * Monta uma resposta curta localmente (fallback conciso) a partir dos trechos.
+ * Gera um fallback conciso se o modelo não retornar nada
  */
 function localConciseFallback(query, passages = []) {
-  const top = passages.slice(0, 3);
-  const firstSentences = top.map(p => {
-    const s = p.text.replace(/\s+/g, ' ').trim();
-    const m = s.match(/(.{20,200}?[\.!?])\s/);
-    if (m && m[1]) return m[1].trim();
-    return (s.slice(0, 160)).trim();
-  }).filter(Boolean);
-
-  const summaryParts = [];
-  if (firstSentences.length > 0) {
-    const words = firstSentences[0].split(/\s+/).slice(0, 10).join(' ');
-    summaryParts.push(`Como fazer: ${words}...`);
-  } else {
-    summaryParts.push('Não encontrei instruções completas nos manuais.');
-  }
-
-  const steps = firstSentences.slice(0, 3).map((s, i) => `${i+1}. ${s}`);
-  const answer = [summaryParts[0], ...steps].join('\n\n');
-
-  const sources = Array.from(new Set(top.map(p => p.source).filter(Boolean))).slice(0, 3);
-  return { answer: answer, sources };
+  const top = passages.slice(0, 2);
+  const joined = top.map(p => p.text).join(' ');
+  return {
+    answer: `Não encontrei uma resposta bem estruturada, mas os manuais mencionam: ${joined}`,
+    sources: top.map(p => p.source)
+  };
 }
 
 /**
- * Tenta extrair um JSON do texto do modelo. Se falhar, cria um resumo curto.
+ * Gera alguns passos automaticamente a partir dos trechos, se não houver steps
  */
-function parseModelOutput(text, passages = []) {
-  if (!text) return null;
+function generateStepsFromPassages(passages = [], max = 3) {
+  return passages
+    .flatMap(p => p.text.split(/[\.\n]+/))
+    .map(s => s.trim())
+    .filter(s => s.length > 10)
+    .slice(0, max);
+}
 
-  const first = text.indexOf('{');
-  const last = text.lastIndexOf('}');
-  if (first !== -1 && last !== -1 && last >= first) {
-    const jsonPart = text.slice(first, last + 1);
-    try {
-      const parsed = JSON.parse(jsonPart);
-      if (parsed && typeof parsed.answer === 'string') {
-        parsed.sources = Array.isArray(parsed.sources) ? parsed.sources.slice(0, 3) : [];
-        return parsed;
-      }
-    } catch (err) {
-      // segue para heurística
+/**
+ * Tenta interpretar a saída crua do modelo como JSON
+ */
+function parseModelOutput(output, passages) {
+  try {
+    return JSON.parse(output);
+  } catch {
+    // se não for JSON, devolve como string crua
+    return { answer: output, sources: passages.map(p => p.source) };
+  }
+}
+
+/**
+ * Normaliza a resposta para JSON estruturado:
+ *  - intro: resumo curto
+ *  - steps: lista de passos curtos
+ *  - extra: observações finais
+ */
+function normalizeAnswer(parsedAnswer = { answer: '' }, passages = []) {
+  const raw = String(parsedAnswer.answer || '').trim();
+
+  const sources = parsedAnswer.sources || [];
+
+  // quebra em linhas
+  const lines = raw.split(/\n+/).map(l => l.trim()).filter(Boolean);
+
+  let intro = '';
+  const steps = [];
+  let extra = '';
+
+  for (const line of lines) {
+    if (/^\d+[\.\)]\s+/.test(line) || line.startsWith('- ') || line.startsWith('•')) {
+      steps.push(line.replace(/^\d+[\.\)]\s+|^- |^•\s*/, '').trim());
+    } else if (!intro) {
+      intro = line;
+    } else {
+      extra += (extra ? ' ' : '') + line;
     }
   }
 
-  const trimmed = text.trim();
-  const parts = trimmed.split(/\n{2,}/).slice(0, 3).map(p => p.replace(/\s+/g, ' ').trim());
-  const answer = parts.join('\n\n').slice(0, 600);
-  const sourceMatches = [...trimmed.matchAll(/([A-Z0-9 \-_]{4,}\.pdf)/gi)].map(m => m[0]);
-  const sources = Array.from(new Set(sourceMatches)).slice(0, 3);
-
-  return { answer: answer, sources };
-}
-
-/**
- * Extrai uma sentença curta representativa de um trecho.
- */
-function extractShortSentenceFromText(s = '') {
-  if (!s) return null;
-  const txt = s.replace(/\s+/g, ' ').trim();
-  const m = txt.match(/(.{20,220}?[\.!?])(\s|$)/);
-  if (m && m[1]) return m[1].trim();
-  // fallback: pega até 120 chars
-  return txt.slice(0, 120).trim();
-}
-
-/**
- * Gera até N passos a partir dos passages (heurística).
- * Retorna array com strings CURTAS (sem numerar).
- */
-function generateStepsFromPassages(passages = [], maxSteps = 3) {
-  const top = passages.slice(0, maxSteps);
-  const steps = [];
-  for (const p of top) {
-    const s = extractShortSentenceFromText(p.text || '');
-    if (s) steps.push(s);
-    if (steps.length >= maxSteps) break;
-  }
-  return steps;
-}
-
-/**
- * Garante que a resposta contenha 1 frase-resumo + até 3 passos (se possível).
- * Se parsedAnswer já tem passos (procura por "1." ou por parágrafos), respeita.
- */
-function ensureAnswerHasSteps(parsedAnswer = { answer: '' }, passages = []) {
-  let ans = String(parsedAnswer.answer || '').trim();
-
-  // já tem múltiplos parágrafos? então assume que tem passos
-  const paragraphCount = (ans.match(/\n{2,}/g) || []).length + 1;
-  const hasNumbered = /\b1\.\s/.test(ans);
-
-  if (paragraphCount > 1 || hasNumbered) {
-    // já ok — retorna como está (apenas corta espaços e remove fontes embutidas)
-    ans = ans.replace(/\n?\s*Fonte(s)?:[\s\S]*$/i, '').trim();
-    return { answer: ans, sources: parsedAnswer.sources || [] };
+  // heurística: se não achou steps, tenta extrair dos trechos
+  if (steps.length === 0 && passages.length) {
+    const auto = generateStepsFromPassages(passages, 3);
+    steps.push(...auto);
   }
 
-  // se temos apenas uma linha e temos passages, gera steps heurísticos
-  const steps = generateStepsFromPassages(passages, 3);
-  if (steps.length === 0) {
-    // nada a acrescentar
-    ans = ans.replace(/\n?\s*Fonte(s)?:[\s\S]*$/i, '').trim();
-    return { answer: ans, sources: parsedAnswer.sources || [] };
+  // se não achou intro, usa primeiro step
+  if (!intro && steps.length) {
+    intro = steps[0];
   }
 
-  // tenta extrair uma frase-resumo curta do ans; se não existir, cria a partir do primeiro step
-  const firstSentenceMatch = ans.match(/(.{10,200}?[\.!?])(\s|$)/);
-  let summary = firstSentenceMatch && firstSentenceMatch[1] ? firstSentenceMatch[1].trim() : null;
-  if (!summary) {
-    summary = steps[0].split(/(?<=[.?!])\s+/)[0] || steps[0];
-  }
-
-  // monta resposta com quebras duplas (o frontend usa \n\n pra separar bolhas)
-  const numbered = steps.map((s, i) => `${i+1}. ${s}`);
-  const final = [summary, ...numbered].join('\n\n');
-
-  const sources = parsedAnswer.sources && parsedAnswer.sources.length ? parsedAnswer.sources.slice(0,3) : [];
-  return { answer: final, sources };
+  return {
+    answer: { intro, steps, extra },
+    sources
+  };
 }
 
 export async function buildAnswer(query, passages = []) {
   if (!passages || passages.length === 0) {
     return {
-      answer: 'Não encontrei nada nos manuais relacionado a essa pergunta.',
+      answer: { intro: 'Não encontrei nada nos manuais relacionado a essa pergunta.', steps: [], extra: '' },
       sources: []
     };
   }
@@ -152,27 +107,24 @@ export async function buildAnswer(query, passages = []) {
 
     let parsed = parseModelOutput(raw, top);
     if (!parsed || !parsed.answer) {
-      // modelo não útil: tenta fallback local conciso (que já produz steps)
       console.warn('⚠️ buildAnswer: modelo devolveu vazio/mal formatado — usando fallback conciso.');
-      return localConciseFallback(query, top);
+      parsed = localConciseFallback(query, top);
     }
 
-    // garante fontes se modelo não trouxe
     if ((!parsed.sources || parsed.sources.length === 0) && defaultSources.length) {
       parsed.sources = defaultSources;
     }
 
-    // assegura que exista resumo + passos (se possível)
-    const ensured = ensureAnswerHasSteps(parsed, top);
+    // 🔑 Normaliza para JSON
+    const ensured = normalizeAnswer(parsed, top);
 
-    // limites de segurança
-    let outAnswer = String(ensured.answer || '').trim();
-    if (outAnswer.length > 1600) outAnswer = outAnswer.slice(0, 1600) + '...';
-
-    const outSources = Array.isArray(ensured.sources) && ensured.sources.length ? ensured.sources.slice(0,3) : defaultSources;
-    return { answer: outAnswer, sources: outSources };
+    return {
+      answer: ensured.answer,
+      sources: ensured.sources && ensured.sources.length ? ensured.sources.slice(0, 3) : defaultSources
+    };
   } catch (err) {
     console.warn('⚠️ Falha na geração via GROQ — usando fallback local:', err.message || err);
-    return localConciseFallback(query, top);
+    const fallback = localConciseFallback(query, top);
+    return normalizeAnswer(fallback, top);
   }
 }
