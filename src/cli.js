@@ -12,6 +12,31 @@ function banner() {
   console.log('==============================================');
 }
 
+function renderAnswer(answer, sources) {
+  console.log('\n--- RESPOSTA ---');
+
+  if (answer.intro) {
+    console.log(`\n👉 ${answer.intro}`);
+  }
+
+  if (answer.steps && answer.steps.length > 0) {
+    console.log('\nPassos:');
+    answer.steps.forEach((s, i) => {
+      console.log(`  ${i + 1}. ${s}`);
+    });
+  }
+
+  if (answer.extra) {
+    console.log(`\n💡 Observação: ${answer.extra}`);
+  }
+
+  if (sources && sources.length) {
+    console.log('\n📚 Fontes: ' + sources.join(' | '));
+  }
+
+  console.log('----------------\n');
+}
+
 async function main() {
   banner();
 
@@ -48,7 +73,6 @@ async function main() {
       let hits = [];
       try {
         hits = await rerank(q, rawHits, Number(process.env.RERANK_TOPK) || 3);
-        // se rerank devolver vazio, fallback para rawHits cortado
         if (!Array.isArray(hits) || hits.length === 0) {
           hits = rawHits.slice(0, Number(process.env.RERANK_TOPK) || 3);
         }
@@ -57,7 +81,7 @@ async function main() {
         hits = rawHits.slice(0, Number(process.env.RERANK_TOPK) || 3);
       }
 
-      // DEBUG: inspeciona o que veio do índice (id, score, source, snippet curto)
+      // DEBUG: hits encontrados
       try {
         console.log('\n[DEBUG] hits:', hits.map(h => ({
           id: h.id,
@@ -78,13 +102,9 @@ async function main() {
 
       console.log('\nGerando resposta (Grok)...');
 
-      // buildAnswer é async e faz fallback interno se Groq falhar
       const { answer, sources } = await buildAnswer(q, hits);
 
-      console.log('\n' + answer);
-      if (sources && sources.length) {
-        console.log('\nFontes:', Array.from(new Set(sources)).join(' | '));
-      }
+      renderAnswer(answer, sources);
     } catch (err) {
       console.error('Erro durante a busca/geração de resposta:', err.message || err);
       console.error('Se o problema persistir, rode "npm run ingest" e verifique store/base.json.');
