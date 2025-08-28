@@ -124,12 +124,10 @@
   function addMessage(text, type, sources = []) {
     const msg = document.createElement('div');
     msg.className = `msg ${type}`;
-    // texto principal
     const p = document.createElement('div');
     p.textContent = text;
     msg.appendChild(p);
 
-    // fontes (se houver)
     if (Array.isArray(sources) && sources.length) {
       const refs = document.createElement('div');
       refs.className = 'sources';
@@ -152,12 +150,75 @@
       const parsed = JSON.parse(jsonStr);
       return parsed;
     } catch (err) {
-      // tenta procurar só por objeto com "answer"
       const match = text.match(/\{[\s\S]*"answer"[\s\S]*\}/);
       if (match) {
         try { return JSON.parse(match[0]); } catch (e) { return null; }
       }
       return null;
+    }
+  }
+
+  // divide texto em blocos legíveis: primeiro tenta parágrafos (\n\n),
+  // senão quebra por sentenças agrupando até ~300 chars por bloco.
+  function splitIntoParts(text) {
+    if (!text) return [];
+    // normaliza quebras
+    const norm = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    // tenta parágrafos vazios
+    const paraParts = norm.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+    if (paraParts.length > 1) return paraParts;
+    // se não tiver parágrafos, quebra por sentenças
+    const sentences = norm.split(/(?<=[.?!])\s+/);
+    const parts = [];
+    let cur = '';
+    for (const s of sentences) {
+      if ((cur + ' ' + s).trim().length <= 300) {
+        cur = (cur + ' ' + s).trim();
+      } else {
+        if (cur) parts.push(cur);
+        cur = s.trim();
+      }
+    }
+    if (cur) parts.push(cur);
+    // garantia: limitar partes a avoid flood
+    return parts;
+  }
+
+  // envia partes com "typing" falso e delays para parecer humano
+  function sendAnswerParts(answerText, sources = []) {
+    const rawParts = splitIntoParts(answerText);
+    const parts = rawParts.length ? rawParts : [answerText || 'Resposta vazia'];
+    const MAX_PARTS = 6;
+    const sendParts = parts.slice(0, MAX_PARTS);
+
+    // typing indicator
+    const typingEl = document.createElement('div');
+    typingEl.className = 'msg bot typing';
+    typingEl.textContent = '…';
+    messages.appendChild(typingEl);
+    messages.scrollTop = messages.scrollHeight;
+
+    // envia partes com delay incremental
+    for (let i = 0; i < sendParts.length; i++) {
+      const part = sendParts[i];
+      const isLast = (i === sendParts.length - 1);
+
+      // delay: 500ms antes da 1ª parte, + (i * 450ms) entre as partes
+      const delay = 500 + (i * 450);
+
+      setTimeout(() => {
+        // remove typing quando for enviar a primeira parte
+        if (typingEl && typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
+        addMessage(part, 'bot', isLast ? sources : []);
+      }, delay);
+    }
+
+    // se cortamos partes, adiciona indicador final
+    if (parts.length > MAX_PARTS) {
+      const after = 500 + (sendParts.length * 450) + 250;
+      setTimeout(() => {
+        addMessage('... (resposta condensada)', 'bot', []);
+      }, after);
     }
   }
 
@@ -175,29 +236,30 @@
       });
       const data = await res.json();
 
-      // Defesa 1: se backend já retornou objeto no answer (raro), trata
+      // Defesa 1: backend object in answer
       let answerText = '';
       let sources = Array.isArray(data.sources) ? data.sources : [];
 
       if (typeof data.answer === 'object' && data.answer !== null) {
-        // ex.: backend acidentalmente devolveu { answer: { answer: "...", sources: [...] } }
         answerText = data.answer.answer || JSON.stringify(data.answer);
         if (Array.isArray(data.answer.sources) && data.answer.sources.length) sources = data.answer.sources;
       } else if (typeof data.answer === 'string') {
-        // tenta extrair JSON embutido na string
         const maybe = tryExtractJsonFromText(data.answer);
         if (maybe && typeof maybe.answer === 'string') {
           answerText = maybe.answer;
           if (Array.isArray(maybe.sources) && maybe.sources.length) sources = maybe.sources;
         } else {
-          // caso não seja JSON, usa a string como resposta direta
           answerText = data.answer;
         }
       } else {
         answerText = String(data.answer || 'Resposta vazia');
       }
 
-      addMessage(answerText, 'bot', sources);
+      // limpa potenciais "Fontes:" embutidas no final do answer para evitar duplicação
+      answerText = answerText.replace(/\n?\s*Fonte(s)?:[\s\S]*$/i, '').trim();
+
+      // envia em partes
+      sendAnswerParts(answerText, sources);
     } catch (err) {
       addMessage('⚠️ Erro ao consultar API: ' + String(err), 'bot');
     }
@@ -210,5 +272,7 @@
     }
   });
 </script>
+
 </body>
 </html>
+
