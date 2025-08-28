@@ -117,52 +117,98 @@
     </div>
   </div>
 
-  <script>
-    const messages = document.getElementById('messages');
-    const textarea = document.getElementById('pergunta');
+<script>
+  const messages = document.getElementById('messages');
+  const textarea = document.getElementById('pergunta');
 
-    function addMessage(text, type, sources=[]) {
-      const msg = document.createElement('div');
-      msg.className = `msg ${type}`;
-      msg.textContent = text;
-      if (sources.length && type === "bot") {
-        const refs = document.createElement('div');
-        refs.className = "sources";
-        refs.textContent = "Fontes: " + sources.join(", ");
-        msg.appendChild(refs);
-      }
-      messages.appendChild(msg);
-      messages.scrollTop = messages.scrollHeight;
+  function addMessage(text, type, sources = []) {
+    const msg = document.createElement('div');
+    msg.className = `msg ${type}`;
+    // texto principal
+    const p = document.createElement('div');
+    p.textContent = text;
+    msg.appendChild(p);
+
+    // fontes (se houver)
+    if (Array.isArray(sources) && sources.length) {
+      const refs = document.createElement('div');
+      refs.className = 'sources';
+      refs.textContent = 'Fontes: ' + sources.join(' | ');
+      msg.appendChild(refs);
     }
 
-    async function perguntar() {
-      const pergunta = textarea.value.trim();
-      if (!pergunta) return;
-      addMessage(pergunta, "user");
-      textarea.value = "";
+    messages.appendChild(msg);
+    messages.scrollTop = messages.scrollHeight;
+  }
 
-      try {
-        const res = await fetch('/api/query', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: pergunta })
-        });
-        const data = await res.json();
-        addMessage(data.answer || "🤷 Não entendi.", "bot", data.sources || []);
-      } catch (err) {
-        addMessage("⚠️ Erro ao consultar API: " + err.message, "bot");
+  // tenta extrair JSON embutido no texto (retorna null se não achar)
+  function tryExtractJsonFromText(text) {
+    if (typeof text !== 'string') return null;
+    const first = text.indexOf('{');
+    const last = text.lastIndexOf('}');
+    if (first === -1 || last === -1 || last <= first) return null;
+    const jsonStr = text.slice(first, last + 1);
+    try {
+      const parsed = JSON.parse(jsonStr);
+      return parsed;
+    } catch (err) {
+      // tenta procurar só por objeto com "answer"
+      const match = text.match(/\{[\s\S]*"answer"[\s\S]*\}/);
+      if (match) {
+        try { return JSON.parse(match[0]); } catch (e) { return null; }
       }
+      return null;
     }
+  }
 
-    textarea.addEventListener("keypress", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        perguntar();
+  async function perguntar() {
+    const pergunta = textarea.value.trim();
+    if (!pergunta) return;
+    addMessage(pergunta, 'user');
+    textarea.value = '';
+
+    try {
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: pergunta })
+      });
+      const data = await res.json();
+
+      // Defesa 1: se backend já retornou objeto no answer (raro), trata
+      let answerText = '';
+      let sources = Array.isArray(data.sources) ? data.sources : [];
+
+      if (typeof data.answer === 'object' && data.answer !== null) {
+        // ex.: backend acidentalmente devolveu { answer: { answer: "...", sources: [...] } }
+        answerText = data.answer.answer || JSON.stringify(data.answer);
+        if (Array.isArray(data.answer.sources) && data.answer.sources.length) sources = data.answer.sources;
+      } else if (typeof data.answer === 'string') {
+        // tenta extrair JSON embutido na string
+        const maybe = tryExtractJsonFromText(data.answer);
+        if (maybe && typeof maybe.answer === 'string') {
+          answerText = maybe.answer;
+          if (Array.isArray(maybe.sources) && maybe.sources.length) sources = maybe.sources;
+        } else {
+          // caso não seja JSON, usa a string como resposta direta
+          answerText = data.answer;
+        }
+      } else {
+        answerText = String(data.answer || 'Resposta vazia');
       }
-    });
-  </script>
+
+      addMessage(answerText, 'bot', sources);
+    } catch (err) {
+      addMessage('⚠️ Erro ao consultar API: ' + String(err), 'bot');
+    }
+  }
+
+  textarea.addEventListener('keypress', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      perguntar();
+    }
+  });
+</script>
 </body>
 </html>
-
-
-
