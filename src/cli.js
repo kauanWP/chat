@@ -12,22 +12,28 @@ function banner() {
   console.log('==============================================');
 }
 
-function renderAnswer(answer, sources) {
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function renderAnswer(answer, sources) {
   console.log('\n--- RESPOSTA ---');
 
   if (answer.intro) {
     console.log(`\n👉 ${answer.intro}`);
+    await sleep(800);
   }
 
   if (answer.steps && answer.steps.length > 0) {
-    console.log('\nPassos:');
-    answer.steps.forEach((s, i) => {
-      console.log(`  ${i + 1}. ${s}`);
-    });
+    for (const step of answer.steps) {
+      console.log(`\n➡️ ${step}`);
+      await sleep(800);
+    }
   }
 
   if (answer.extra) {
     console.log(`\n💡 Observação: ${answer.extra}`);
+    await sleep(800);
   }
 
   if (sources && sources.length) {
@@ -66,10 +72,8 @@ async function main() {
     }
 
     try {
-      // pega um pool maior para o reranker escolher
       const rawHits = search(q, 8);
 
-      // tenta rerankar (pode usar heurística se RERANK_ENABLED != '1')
       let hits = [];
       try {
         hits = await rerank(q, rawHits, Number(process.env.RERANK_TOPK) || 3);
@@ -81,7 +85,6 @@ async function main() {
         hits = rawHits.slice(0, Number(process.env.RERANK_TOPK) || 3);
       }
 
-      // DEBUG: hits encontrados
       try {
         console.log('\n[DEBUG] hits:', hits.map(h => ({
           id: h.id,
@@ -104,7 +107,7 @@ async function main() {
 
       const { answer, sources } = await buildAnswer(q, hits);
 
-      renderAnswer(answer, sources);
+      await renderAnswer(answer, sources);
     } catch (err) {
       console.error('Erro durante a busca/geração de resposta:', err.message || err);
       console.error('Se o problema persistir, rode "npm run ingest" e verifique store/base.json.');
