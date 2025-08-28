@@ -158,16 +158,13 @@
     }
   }
 
-  // divide texto em blocos legíveis: primeiro tenta parágrafos (\n\n),
-  // senão quebra por sentenças agrupando até ~300 chars por bloco.
-  function splitIntoParts(text) {
+  // divide texto em blocos: primeiro por parágrafos duplos, senão por sentenças
+  function splitIntoParagraphs(text) {
     if (!text) return [];
-    // normaliza quebras
     const norm = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
-    // tenta parágrafos vazios
     const paraParts = norm.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
     if (paraParts.length > 1) return paraParts;
-    // se não tiver parágrafos, quebra por sentenças
+    // sem parágrafos, cria pequenos blocos por sentenças
     const sentences = norm.split(/(?<=[.?!])\s+/);
     const parts = [];
     let cur = '';
@@ -180,45 +177,98 @@
       }
     }
     if (cur) parts.push(cur);
-    // garantia: limitar partes a avoid flood
     return parts;
   }
 
-  // envia partes com "typing" falso e delays para parecer humano
-  function sendAnswerParts(answerText, sources = []) {
-    const rawParts = splitIntoParts(answerText);
-    const parts = rawParts.length ? rawParts : [answerText || 'Resposta vazia'];
-    const MAX_PARTS = 6;
-    const sendParts = parts.slice(0, MAX_PARTS);
+  // se encontrar lista numerada dentro de um bloco, separa cada item "1. ...", "2. ..." em partes individuais
+  function explodeNumberedList(block) {
+    // procura padrão típico "1. " no bloco — se não tiver, retorna o bloco original
+    if (!/[0-9]+\.\s/.test(block)) return [block];
+    // divide preservando os números no início de cada item
+    const items = block.split(/(?=\b[0-9]+\.\s)/g).map(i => i.trim()).filter(Boolean);
+    // limpar prefixo numérico opcional (se quiser manter o "1." deixe como está)
+    return items.map(it => {
+      // transforma "1. Texto..." em "Texto..." (remova se preferir manter "1.")
+      return it.replace(/^[0-9]+\.\s*/, '').trim();
+    });
+  }
 
-    // typing indicator
+  // função que transforma a resposta em uma lista de partes/bubbles:
+  // -> resumo (primeiro bloco) + (cada item numerado vira uma bolha própria)
+  function buildMessageParts(answerText) {
+    const paras = splitIntoParagraphs(answerText);
+    if (paras.length === 0) return ['Resposta vazia'];
+
+    const parts = [];
+    // coloca primeiro parágrafo como resumo (ou se houver só um bloco, pode ser resumo também)
+    parts.push(paras[0]);
+
+    // os blocos seguintes: se tiver lista numerada dentro deles, explode; senão coloca bloco inteiro
+    for (let i = 1; i < paras.length; i++) {
+      const p = paras[i];
+      const exploded = explodeNumberedList(p);
+      for (const e of exploded) parts.push(e);
+    }
+
+    // se só existia um parágrafo mas ele contém numeração interna (ex.: "1. ... 2. ..."), detecta e explode
+    if (paras.length === 1 && /[0-9]+\.\s/.test(paras[0])) {
+      // já tinha adicionado paras[0] como resumo; vamos tentar extrair itens numéricos e adicioná-los
+      const extra = explodeNumberedList(paras[0]);
+      if (extra.length > 1) {
+        // substitui resumo (parte 0) por uma forma enxuta do primeiro segmento (se for muito longo)
+        parts.length = 0;
+        // tenta tirar um primeiro resumo curto (primeira sentença)
+        const firstSentence = paras[0].split(/(?<=[.?!])\s+/)[0];
+        parts.push(firstSentence);
+        for (const e of extra) parts.push(e);
+      }
+    }
+
+    return parts;
+  }
+
+  // envia partes com typing e delays, fontes só na última bolha
+  function sendAnswerParts(answerText, sources = []) {
+    const rawParts = buildMessageParts(answerText);
+    const MAX_PARTS = 8;
+    const sendParts = rawParts.slice(0, MAX_PARTS);
     const typingEl = document.createElement('div');
     typingEl.className = 'msg bot typing';
     typingEl.textContent = '…';
     messages.appendChild(typingEl);
     messages.scrollTop = messages.scrollHeight;
 
-    // envia partes com delay incremental
+    // delays: calcula tempo inicial + por parte. Vamos usar tempo proporcional ao tamanho do texto da parte.
+    let accrued = 400; // espera inicial
     for (let i = 0; i < sendParts.length; i++) {
       const part = sendParts[i];
       const isLast = (i === sendParts.length - 1);
-
-      // delay: 500ms antes da 1ª parte, + (i * 450ms) entre as partes
-      const delay = 500 + (i * 450);
-
+      // tempo de "digitação" estimado: 40ms * chars (clamp)
+      const typingTime = Math.min(2500, Math.max(350, part.length * 40));
+      const delay = accrued;
       setTimeout(() => {
-        // remove typing quando for enviar a primeira parte
         if (typingEl && typingEl.parentNode) typingEl.parentNode.removeChild(typingEl);
         addMessage(part, 'bot', isLast ? sources : []);
       }, delay);
+      accrued += typingTime + 180; // adiciona typing + pequeno gap antes da próxima
+      // re-add typing indicator before next message if exists
+      if (i < sendParts.length - 1) {
+        setTimeout(() => {
+          if (!document.querySelector('.msg.bot.typing')) {
+            const t = document.createElement('div');
+            t.className = 'msg bot typing';
+            t.textContent = '…';
+            messages.appendChild(t);
+            messages.scrollTop = messages.scrollHeight;
+          }
+        }, delay + typingTime + 60);
+      }
     }
 
-    // se cortamos partes, adiciona indicador final
-    if (parts.length > MAX_PARTS) {
-      const after = 500 + (sendParts.length * 450) + 250;
+    if (rawParts.length > MAX_PARTS) {
       setTimeout(() => {
         addMessage('... (resposta condensada)', 'bot', []);
-      }, after);
+      }, accrued + 80);
     }
   }
 
@@ -236,7 +286,7 @@
       });
       const data = await res.json();
 
-      // Defesa 1: backend object in answer
+      // processa o answer (pode ser objeto, string com JSON embutido, ou string pura)
       let answerText = '';
       let sources = Array.isArray(data.sources) ? data.sources : [];
 
@@ -255,10 +305,10 @@
         answerText = String(data.answer || 'Resposta vazia');
       }
 
-      // limpa potenciais "Fontes:" embutidas no final do answer para evitar duplicação
+      // limpar "Fontes:" embutidas pra evitar duplicação
       answerText = answerText.replace(/\n?\s*Fonte(s)?:[\s\S]*$/i, '').trim();
 
-      // envia em partes
+      // envia dividido em partes (resumo + passos separados)
       sendAnswerParts(answerText, sources);
     } catch (err) {
       addMessage('⚠️ Erro ao consultar API: ' + String(err), 'bot');
@@ -273,6 +323,8 @@
   });
 </script>
 
+
 </body>
 </html>
+
 
