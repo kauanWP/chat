@@ -9,6 +9,7 @@
     "ingest": "node src/ingest.js"
   },
   "dependencies": {
+    "ai": "^5.0.27",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^4.18.2",
